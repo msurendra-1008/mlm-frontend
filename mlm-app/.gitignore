@@ -9,7 +9,7 @@
 /coverage
 
 # productio
-mlm-frontend/node_modules/
+mlm-frontend/node_modules
 
 
 # misc
