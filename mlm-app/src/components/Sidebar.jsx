@@ -30,6 +30,7 @@ const sidebarItems = [
         path: '/inventory',
         icon: <FaBox />,
         submenu: [
+            { title: 'Vendor', path: '/vendors' },
             { title: 'Stock List', path: '/inventory/stock' },
             { title: 'Order List', path: '/inventory/orders' },
             { title: 'Returns', path: '/inventory/returns' },
