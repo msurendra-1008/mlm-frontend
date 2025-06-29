@@ -79,15 +79,16 @@ const VendorRegistration = () => {
                 body {
                     background-color: #f4f7fa;
                     min-height: 100vh;
-                    padding: 20px;
+                   margin: 0;           /* ✅ Removes browser default margins */
+                    padding: 0; 
                 }
                 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start; /* ✅ Prevents matching height */
-}
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    display: flex;
+                    gap: 20px;
+                    align-items: flex-start; /* ✅ Prevents matching height */
+                }
 
                 h1 {
                     font-size: 2rem;
