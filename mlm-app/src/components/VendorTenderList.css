@@ -1,0 +1,131 @@
+.center-text {
+    text-align: center;
+  }
+
+
+.vendor-container {
+    padding: 20px;
+    max-width: 900px;
+    margin: auto;
+    font-family: Arial, sans-serif;
+  }
+  
+  .vendor-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .vendor-table th,
+  .vendor-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    
+  }
+  
+  .vendor-table th {
+    background-color: #5c4033; /* Dark brown */
+    color: #fff;
+  }
+  
+  .vendor-table button {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .vendor-table button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modal-box {
+    background: white;
+    padding: 20px;
+    width: 500px;
+    border-radius: 8px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .modal-form input,
+  .modal-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+  }
+
+  /* Spinner */
+.spinner {
+    margin: 50px auto;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ccc;
+    border-top-color: #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  .btn-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.6s linear infinite;
+    margin: 0 auto;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Badge colors */
+  .badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: white;
+  }
+  
+  .badge-gray { background: #6c757d; }
+  .badge-green { background: #28a745; }
+  .badge-orange { background: #fd7e14; }
+  .badge-blue { background: #007bff; }
+  .badge-red { background: #dc3545; }
+  
