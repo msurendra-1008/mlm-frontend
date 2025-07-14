@@ -68,19 +68,24 @@ const VendorTenderList = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await axios.post(`${BASE_API}/tender-bids/`, {
+      await axios.post(`${BASE_API}/ecom-product/tender-bids/`, {
         ...formData,
         tender_id: selectedTender.id
       });
       alert("Bid submitted successfully!");
       closeModal();
+      setTimeout(() => {
+        window.location.href = '/fill-tender-bids'; // Adjust if route differs
+      }, 1500);
     } catch (err) {
       console.error(err);
-      alert("Error submitting bid.");
+      const msg = err.response?.data?.detail || "Error submitting bid.";
+      alert(msg);
     } finally {
       setSubmitting(false);
     }
   };
+  
 
   return (
     <div className="vendor-container">
