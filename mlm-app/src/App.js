@@ -8,6 +8,7 @@ import Inventory from './pages/Inventory';
 import VendorRegistration from './pages/VendorRegistration';
 import Tender from './pages/Tender';
 import TenderListForVendor from './pages/TenderListForVendor';
+import ReviewTenderBids from './pages/ReviewTenderBids';
 import InventoryStock from './pages/InventoryStock';
 import InventoryOrders from './pages/InventoryOrders';
 import InventoryReturns from './pages/InventoryReturns';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/vendors" element={<VendorRegistration />} />
           <Route path="/tenders" element={<Tender />} />
           <Route path="/fill-tender-bids" element={<TenderListForVendor />} />
+          <Route path="/review-tender-bids" element={<ReviewTenderBids />} />
           <Route path="/inventory/stock" element={<InventoryStock />} />
           <Route path="/inventory/orders" element={<InventoryOrders />} />
           <Route path="/inventory/returns" element={<InventoryReturns />} />

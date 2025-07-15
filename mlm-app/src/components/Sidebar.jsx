@@ -33,6 +33,7 @@ const sidebarItems = [
             { title: 'Vendor', path: '/vendors' },
             { title: 'Tender', path: '/tenders' },
             { title: 'Fill Tender Bid', path: '/fill-tender-bids' },
+            { title: 'Review Tender Bid', path: '/review-tender-bids' },
             { title: 'Stock List', path: '/inventory/stock' },
             { title: 'Order List', path: '/inventory/orders' },
             { title: 'Returns', path: '/inventory/returns' },
