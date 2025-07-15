@@ -264,6 +264,8 @@
 
 
 import React, { useEffect, useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import '../components/ReviewTenderBids.css';
 
@@ -274,7 +276,7 @@ const TenderBidReview = () => {
   const [loading, setLoading] = useState(true);
   const [negotiationNote, setNegotiationNote] = useState('');
   const [editingBidId, setEditingBidId] = useState(null);
-  const [loadingBidId, setLoadingBidId] = useState(null); // ✅ For per-bid spinner
+  const [rowLoading, setRowLoading] = useState(null); // ✅ Correct name
 
   const fetchBids = async () => {
     try {
@@ -293,27 +295,34 @@ const TenderBidReview = () => {
     fetchBids();
   }, []);
 
-  const updateStatus = async (id, status, customMessage = null) => {
-    setLoadingBidId(id); // ✅ Start spinner for this bid
+  const updateStatus = async (id, status, newMessage = '') => {
+    setRowLoading(id);
     try {
       await axios.post(`${BASE_API}/tender-bids/${id}/update_status/`, {
         status,
-        negotiation_message: customMessage !== null ? customMessage : ''
+        negotiation_message: status === 'negotiation' ? newMessage : '',
       });
-      setEditingBidId(null);
-      setNegotiationNote('');
-      fetchBids();
+
+      const res = await axios.get(`${BASE_API}/tender-bids/`);
+      const data = Array.isArray(res.data.results) ? res.data.results : res.data;
+      setBids(data);
+
+      toast.success(`Status updated to "${status}"`);
     } catch (err) {
       console.error(err);
-      alert('Failed to update status.');
+      toast.error('Failed to update status.');
     } finally {
-      setLoadingBidId(null); // ✅ Stop spinner
+      setRowLoading(null);
+      setEditingBidId(null);
+      setNegotiationNote('');
     }
   };
 
   return (
     <div className="bid-review-container">
+      <ToastContainer position="top-center" autoClose={2000} />
       <h2 className="page-title">Tender Bids Review</h2>
+
       {loading ? (
         <div className="loader" />
       ) : (
@@ -330,16 +339,18 @@ const TenderBidReview = () => {
             </tr>
           </thead>
           <tbody>
-            {bids.map(bid => (
+            {bids.map((bid) => (
               <tr key={bid.id}>
                 <td>{bid.vendor_name}</td>
                 <td>{bid.tender_title}</td>
                 <td>₹ {bid.bid_amount}</td>
                 <td>{bid.bid_description}</td>
-                <td><span className={`badge badge-${bid.status}`}>{bid.status}</span></td>
+                <td>
+                  <span className={`badge badge-${bid.status}`}>{bid.status}</span>
+                </td>
                 <td>{new Date(bid.submitted_at).toLocaleString()}</td>
                 <td>
-                  {loadingBidId === bid.id ? (
+                  {rowLoading === bid.id ? (
                     <div className="row-spinner" />
                   ) : bid.status === 'approved' ? (
                     <span className="emoji">✅</span>
@@ -347,14 +358,25 @@ const TenderBidReview = () => {
                     <span className="emoji">❌</span>
                   ) : (
                     <>
-                      <button className="action-btn" onClick={() => updateStatus(bid.id, 'approved')}>Approve</button>
-                      <button className="danger-btn" onClick={() => updateStatus(bid.id, 'rejected')}>Reject</button>
+                      <button
+                        className="action-btn"
+                        onClick={() => updateStatus(bid.id, 'approved')}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className="danger-btn"
+                        onClick={() => updateStatus(bid.id, 'rejected')}
+                      >
+                        Reject
+                      </button>
 
                       {bid.status === 'negotiation' && (
                         <>
                           <div className="negotiation-message">
                             <strong>Message:</strong> {bid.negotiation_message}
                           </div>
+
                           {editingBidId === bid.id ? (
                             <>
                               <textarea
@@ -363,16 +385,29 @@ const TenderBidReview = () => {
                                 onChange={(e) => setNegotiationNote(e.target.value)}
                                 className="negotiation-input"
                               />
-                              <button className="primary-btn" onClick={() => updateStatus(bid.id, 'negotiation', negotiationNote)}>
+                              <button
+                                className="primary-btn"
+                                onClick={() =>
+                                  updateStatus(bid.id, 'negotiation', negotiationNote)
+                                }
+                              >
                                 Send
                               </button>
-                              <button className="secondary-btn" onClick={() => setEditingBidId(null)}>Cancel</button>
+                              <button
+                                className="secondary-btn"
+                                onClick={() => setEditingBidId(null)}
+                              >
+                                Cancel
+                              </button>
                             </>
                           ) : (
-                            <button className="secondary-btn" onClick={() => {
-                              setEditingBidId(bid.id);
-                              setNegotiationNote(bid.negotiation_message || '');
-                            }}>
+                            <button
+                              className="secondary-btn"
+                              onClick={() => {
+                                setEditingBidId(bid.id);
+                                setNegotiationNote(bid.negotiation_message || '');
+                              }}
+                            >
                               Edit Message
                             </button>
                           )}
@@ -380,11 +415,14 @@ const TenderBidReview = () => {
                       )}
 
                       {bid.status === 'pending' && (
-                        <button className="secondary-btn" onClick={() => {
-                          setEditingBidId(bid.id);
-                          setNegotiationNote('');
-                          updateStatus(bid.id, 'negotiation', '');
-                        }}>
+                        <button
+                          className="secondary-btn"
+                          onClick={() => {
+                            setEditingBidId(bid.id);
+                            setNegotiationNote('');
+                            updateStatus(bid.id, 'negotiation', '');
+                          }}
+                        >
                           Negotiate
                         </button>
                       )}
@@ -401,5 +439,6 @@ const TenderBidReview = () => {
 };
 
 export default TenderBidReview;
+
 
 
