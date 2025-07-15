@@ -101,3 +101,41 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  .emoji {
+    font-size: 24px;
+  }
+  
+  .negotiation-message {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #333;
+    background: #f9f9f9;
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  .negotiation-input {
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .row-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #007bff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: auto;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
