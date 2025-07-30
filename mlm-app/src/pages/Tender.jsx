@@ -274,6 +274,7 @@ const TenderAdminDashboard = () => {
   const [formData, setFormData] = useState({
     tender_product_no: '',
     title: '',
+    quantity: '', // <-- Added quantity field
     product_image: null,
     description: '',
     deadline: '',
@@ -284,12 +285,12 @@ const TenderAdminDashboard = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [page, setPage] = useState(1);
-  const [next, setNext] = useState(null);
-  const [prev, setPrev] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [sortBy, setSortBy] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [totalCount, setTotalCount] = useState(0);
+  const pageSize = 7; // Set to your backend's page size
 
   const fetchTenders = useCallback(async () => {
     setLoading(true);
@@ -300,8 +301,7 @@ const TenderAdminDashboard = () => {
       const results = res.data.results;
       setTenders(results);
       setFilteredTenders(results);
-      setNext(res.data.next);
-      setPrev(res.data.previous);
+      setTotalCount(res.data.count); // <-- Add this
     } catch (err) {
       toast.error("Failed to load tenders.");
     } finally {
@@ -327,6 +327,7 @@ const TenderAdminDashboard = () => {
       setFormData({
         tender_product_no: tender.tender_product_no || '',
         title: tender.title || '',
+        quantity: tender.quantity || '', // <-- Added quantity field
         description: tender.description || '',
         deadline: tender.deadline ? tender.deadline.slice(0, 16) : '',
         location: tender.location || '',
@@ -339,6 +340,7 @@ const TenderAdminDashboard = () => {
       setFormData({
         tender_product_no: '',
         title: '',
+        quantity: '', // <-- Added quantity field
         description: '',
         deadline: '',
         location: '',
@@ -431,6 +433,25 @@ const TenderAdminDashboard = () => {
     }
   };
 
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const getPageNumbers = () => {
+    const maxPagesToShow = 5;
+    let start = Math.max(1, page - Math.floor(maxPagesToShow / 2));
+    let end = start + maxPagesToShow - 1;
+
+    if (end > totalPages) {
+      end = totalPages;
+      start = Math.max(1, end - maxPagesToShow + 1);
+    }
+
+    const pages = [];
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
   return (
     <div className="dashboard-container">
       <h1 className="dashboard-title">Tender Management</h1>
@@ -466,7 +487,9 @@ const TenderAdminDashboard = () => {
           <table className="custom-table">
             <thead>
               <tr>
+                <th>S. No.</th>
                 <th>Title</th>
+                <th>Quantity</th> {/* <-- Added Quantity column */}
                 <th>Location</th>
                 <th>Budget</th>
                 <th>Status</th>
@@ -475,9 +498,11 @@ const TenderAdminDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTenders.map(tender => (
+              {filteredTenders.map((tender, idx) => (
                 <tr key={tender.id}>
+                  <td>{(page - 1) * pageSize + idx + 1}</td>
                   <td>{tender.title}</td>
+                  <td>{tender.quantity}</td> {/* <-- Show quantity */}
                   <td>{tender.location}</td>
                   <td>{tender.budget}</td>
                   <td>{getStatusBadge(tender.status)}</td>
@@ -491,9 +516,36 @@ const TenderAdminDashboard = () => {
             </tbody>
           </table>
 
-          <div className="pagination">
-            <button className="pagination-btn" onClick={() => prev && setPage(p => p - 1)} disabled={!prev}>Prev</button>
-            <button className="pagination-btn" onClick={() => next && setPage(p => p + 1)} disabled={!next}>Next</button>
+          <div className="pagination-bar">
+            <div className="pagination-controls">
+              <button
+                className="pagination-btn"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1}
+              >
+                Prev
+              </button>
+              {getPageNumbers().map((pg) => (
+                <button
+                  key={pg}
+                  className={`pagination-btn${pg === page ? ' active' : ''}`}
+                  onClick={() => setPage(pg)}
+                  disabled={pg === page}
+                >
+                  {pg}
+                </button>
+              ))}
+              <button
+                className="pagination-btn"
+                onClick={() => setPage(page + 1)}
+                disabled={page === totalPages}
+              >
+                Next
+              </button>
+            </div>
+            <div className="pagination-info">
+              Page {page} of {totalPages}
+            </div>
           </div>
         </>
       ) : (
@@ -510,6 +562,16 @@ const TenderAdminDashboard = () => {
 
               <label>Title</label>
               <input name="title" value={formData.title} onChange={handleChange} required />
+
+              <label>Quantity</label> {/* <-- Added Quantity input */}
+              <input
+                name="quantity"
+                type="number"
+                value={formData.quantity}
+                onChange={handleChange}
+                required
+                min="1"
+              />
 
               <label>Description</label>
               <textarea name="description" value={formData.description} onChange={handleChange} required />

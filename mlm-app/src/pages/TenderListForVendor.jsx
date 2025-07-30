@@ -98,6 +98,7 @@ const VendorTenderList = () => {
           <thead>
             <tr>
               <th>Title</th>
+              <th>Quantity</th>
               <th>Location</th>
               <th>Status</th>
               <th>Deadline</th>
@@ -108,6 +109,7 @@ const VendorTenderList = () => {
             {tenders.map(tender => (
               <tr key={tender.id}>
                 <td>{tender.title}</td>
+                <td>{tender.quantity}</td>
                 <td>{tender.location}</td>
                 <td>{statusBadge(tender.status)}</td>
                 <td>{new Date(tender.deadline).toLocaleString()}</td>
@@ -129,6 +131,9 @@ const VendorTenderList = () => {
             <form onSubmit={handleSubmit} className="modal-form">
               <label>Email (registered)</label>
               <input type="email" name="vendor_email" required value={formData.vendor_email} onChange={handleChange} />
+
+              <label>Quantity</label>
+              <input type="number" value={selectedTender.quantity} readOnly />
 
               <label>Bid Amount (₹)</label>
               <input type="number" name="bid_amount" required value={formData.bid_amount} onChange={handleChange} />

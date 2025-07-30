@@ -13,6 +13,8 @@ export default function WomenIncomeSetting() {
     const [page, setPage] = useState(1);
     const [next, setNext] = useState(null);
     const [prev, setPrev] = useState(null);
+    const [formErrors, setFormErrors] = useState({});
+    const [count, setCount] = useState(0); // total count for pagination
 
     const apiBase = 'https://mlm-backend-pi.vercel.app/api/women-income/';
 
@@ -30,6 +32,7 @@ export default function WomenIncomeSetting() {
                 setEntries(res.data.results || []);
                 setNext(res.data.next);
                 setPrev(res.data.previous);
+                setCount(res.data.count || 0);
             })
             .catch(err => console.error("Error fetching data", err))
             .finally(() => setLoading(false));
@@ -43,6 +46,12 @@ export default function WomenIncomeSetting() {
     };
 
     const handleCreate = () => {
+        const errors = {};
+        if (!formData.category) errors.category = 'Category is required.';
+        if (!formData.income) errors.income = 'Income is required.';
+        setFormErrors(errors);
+        if (Object.keys(errors).length > 0) return;
+
         setSubmitLoading(true);
         const data = { category: formData.category, income: formData.income };
 
@@ -72,7 +81,11 @@ export default function WomenIncomeSetting() {
     };
 
     const openEditModal = (entry) => {
-        setFormData({ category: entry.category, income: entry.income });
+        setFormData({
+            category: entry.category,
+            income: entry.income,
+            previous_income_for_women_old: entry.previous_income_for_women_old ?? entry.income,
+        });
         setEditId(entry.id);
         setIsEditMode(true);
         setShowModal(true);
@@ -87,9 +100,15 @@ export default function WomenIncomeSetting() {
 
     if (loading) return <div style={{ textAlign: 'center', paddingTop: '50px' }}>⏳ Loading data...</div>;
 
+    // Pagination logic
+    const PAGE_SIZE = 10;
+    const totalPages = count ? Math.ceil(count / PAGE_SIZE) : 1;
+    const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
     return (
         <div style={{ maxWidth: '900px', margin: '50px auto', textAlign: 'center' }}>
             <h2>👩‍🦳 Women Income Settings</h2>
+            <p>This is the income setting for the Child Below 18, Mature Female & Senior Citizen</p>
             <button onClick={() => setShowModal(true)} style={{ marginBottom: '20px', padding: '10px 15px', fontSize: '16px', cursor: 'pointer' }}>
                 ➕ Create Income For Women & Old
             </button>
@@ -99,7 +118,8 @@ export default function WomenIncomeSetting() {
                     <tr>
                         <th style={thStyle}>S.No</th>
                         <th style={thStyle}>Category</th>
-                        <th style={thStyle}>Income</th>
+                        <th style={thStyle}>Previous Income</th>
+                        <th style={thStyle}>Current Income</th>
                         <th style={thStyle}>Actions</th>
                     </tr>
                 </thead>
@@ -108,6 +128,7 @@ export default function WomenIncomeSetting() {
                         <tr key={entry.id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff', borderBottom: '1px solid #ddd' }}>
                             <td style={tdStyle}>{index + 1}</td>
                             <td style={tdStyle}>{entry.category}</td>
+                            <td style={tdStyle}>₹{entry.previous_income_for_women_old ?? entry.income}</td>
                             <td style={tdStyle}>₹{entry.income}</td>
                             <td style={tdStyle}>
                                 <button style={editBtn} onClick={() => openEditModal(entry)}>Edit</button>
@@ -118,9 +139,65 @@ export default function WomenIncomeSetting() {
                 </tbody>
             </table>
 
-            <div style={{ marginTop: '20px' }}>
-                <button onClick={goPrev} disabled={!prev} style={{ marginRight: '10px' }}>◀️ Prev</button>
-                <button onClick={goNext} disabled={!next}>Next ▶️</button>
+            <div style={{
+                marginTop: '0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: '#fff',
+                color: '#333',
+                borderRadius: '0 0 8px 8px',
+                padding: '12px 20px',
+                minHeight: '56px',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <button onClick={goPrev} disabled={!prev || page === 1} style={{
+                        marginRight: '10px',
+                        background: '#e0e7ff',
+                        color: '#2563eb',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        opacity: (!prev || page === 1) ? 0.5 : 1,
+                    }}>
+                        ◀️ Prev
+                    </button>
+                    {pageNumbers.map(num => (
+                        <button
+                            key={num}
+                            onClick={() => setPage(num)}
+                            style={{
+                                margin: '0 3px',
+                                padding: '6px 12px',
+                                backgroundColor: num === page ? '#2563eb' : '#e0e7ff',
+                                color: num === page ? '#fff' : '#2563eb',
+                                border: 'none',
+                                borderRadius: '4px',
+                                fontWeight: num === page ? 'bold' : 'normal',
+                                cursor: 'pointer',
+                                opacity: 1,
+                            }}
+                        >
+                            {num}
+                        </button>
+                    ))}
+                    <button onClick={goNext} disabled={!next} style={{
+                        marginLeft: '10px',
+                        background: '#e0e7ff',
+                        color: '#2563eb',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '6px 12px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        opacity: !next ? 0.5 : 1,
+                    }}>
+                        Next ▶️
+                    </button>
+                </div>
+                <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#2563eb' }}>{page} of {totalPages}</div>
             </div>
 
             {showModal && (
@@ -138,12 +215,31 @@ export default function WomenIncomeSetting() {
                                 <option value="Mature Female">Mature Female</option>
                                 <option value="Senior Citizen">Senior Citizen</option>
                             </select>
+                            {formErrors.category && (
+                                <div style={{ color: 'red', fontSize: '12px', marginTop: '2px', textAlign: 'left' }}>{formErrors.category}</div>
+                            )}
                         </div>
 
                         <div style={{ marginBottom: '15px' }}>
                             <label>Income</label>
                             <input type="number" name="income" value={formData.income} onChange={handleChange} style={inputStyle} />
+                            {formErrors.income && (
+                                <div style={{ color: 'red', fontSize: '12px', marginTop: '2px', textAlign: 'left' }}>{formErrors.income}</div>
+                            )}
                         </div>
+
+                        {isEditMode && (
+                            <div style={{ marginBottom: '15px' }}>
+                                <label>Previous Income</label>
+                                <input
+                                    type="number"
+                                    name="previous_income_for_women_old"
+                                    value={formData.previous_income_for_women_old ?? formData.income}
+                                    readOnly
+                                    style={{ ...inputStyle, backgroundColor: '#f3f3f3' }}
+                                />
+                            </div>
+                        )}
 
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <button onClick={resetModal} style={{ ...modalBtn, backgroundColor: '#e5e7eb', color: '#333', marginRight: '10px' }}>Cancel</button>

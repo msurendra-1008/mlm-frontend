@@ -34,6 +34,7 @@ const sidebarItems = [
             { title: 'Tender', path: '/tenders' },
             { title: 'Fill Tender Bid', path: '/fill-tender-bids' },
             { title: 'Review Tender Bid', path: '/review-tender-bids' },
+            { title: 'Tender Pre-Requisit', path: '/tender-pre-requisit' },
             { title: 'Stock List', path: '/inventory/stock' },
             { title: 'Order List', path: '/inventory/orders' },
             { title: 'Returns', path: '/inventory/returns' },

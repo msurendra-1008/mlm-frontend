@@ -277,6 +277,18 @@ const TenderBidReview = () => {
   const [negotiationNote, setNegotiationNote] = useState('');
   const [editingBidId, setEditingBidId] = useState(null);
   const [rowLoading, setRowLoading] = useState(null); // ✅ Correct name
+  const [statusFilter, setStatusFilter] = useState('');
+
+  // Add a status label map for display
+  const statusLabelMap = {
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    negotiation: 'Negotiation',
+  };
+
+  // Filtered bids based on status
+  const filteredBids = statusFilter ? bids.filter(bid => bid.status === statusFilter) : bids;
 
   const fetchBids = async () => {
     try {
@@ -323,6 +335,21 @@ const TenderBidReview = () => {
       <ToastContainer position="top-center" autoClose={2000} />
       <h2 className="page-title">Tender Bids Review</h2>
 
+      <div className="filter-bar">
+        <label htmlFor="statusFilter">Filter by Status: </label>
+        <select
+          id="statusFilter"
+          value={statusFilter}
+          onChange={e => setStatusFilter(e.target.value)}
+          className="status-filter-select"
+        >
+          <option value="">All</option>
+          {Object.entries(statusLabelMap).map(([key, label]) => (
+            <option key={key} value={key}>{label}</option>
+          ))}
+        </select>
+      </div>
+
       {loading ? (
         <div className="loader" />
       ) : (
@@ -330,6 +357,7 @@ const TenderBidReview = () => {
           <thead>
             <tr>
               <th>Vendor</th>
+              <th>Quantity</th>
               <th>Tender</th>
               <th>Amount</th>
               <th>Description</th>
@@ -339,23 +367,34 @@ const TenderBidReview = () => {
             </tr>
           </thead>
           <tbody>
-            {bids.map((bid) => (
+            {filteredBids.map((bid) => (
               <tr key={bid.id}>
                 <td>{bid.vendor_name}</td>
+                <td>{bid.quantity}</td>
                 <td>{bid.tender_title}</td>
                 <td>₹ {bid.bid_amount}</td>
                 <td>{bid.bid_description}</td>
                 <td>
-                  <span className={`badge badge-${bid.status}`}>{bid.status}</span>
+                  <span className={`badge badge-${bid.status}`}>{statusLabelMap[bid.status] || bid.status}</span>
                 </td>
                 <td>{new Date(bid.submitted_at).toLocaleString()}</td>
                 <td>
                   {rowLoading === bid.id ? (
                     <div className="row-spinner" />
                   ) : bid.status === 'approved' ? (
-                    <span className="emoji">✅</span>
+                    <button className="action-btn icon-btn" title="Approved" disabled>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="10" fill="#28a745" />
+                        <path d="M6 10.5L9 13.5L14 8.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
                   ) : bid.status === 'rejected' ? (
-                    <span className="emoji">❌</span>
+                    <button className="danger-btn icon-btn" title="Rejected" disabled>
+                      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="10" cy="10" r="10" fill="#dc3545" />
+                        <path d="M7 7L13 13M13 7L7 13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </button>
                   ) : (
                     <>
                       <button
